@@ -22,6 +22,7 @@ onready var hurtbox = $HurtBox
 
 
 func _ready():
+	randomize()
 	stats.connect("no_health", self, "queue_free")
 	state = MOVE
 	animationTree.active = true
