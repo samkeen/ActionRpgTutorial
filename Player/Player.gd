@@ -1,10 +1,10 @@
 extends KinematicBody2D
 
-export var ACCELERATION = 500
-export var MAX_SPEED = 80
-export var ROLL_SPEED = 120
-export var FRICTION = 500
-
+export(int) var ACCELERATION = 500
+export(int) var MAX_SPEED = 80
+export(int) var ROLL_SPEED = 120
+export(int) var FRICTION = 500
+export(float) var INVINCIBILITY_TIMEOUT = 0.5
 enum {MOVE, ROLL, ATTACK}
 
 var state
@@ -12,14 +12,17 @@ var velocity = Vector2.ZERO
 # this allows us to role in the direction of movement. (we start by facing down,
 #   so start roll vector as down.
 var roll_vector = Vector2.DOWN
+var stats = PlayerStats
 
 onready var animationPlayer = $AnimationPlayer
 onready var animationTree = $AnimationTree
 onready var animationState = animationTree.get("parameters/playback")
 onready var swordHitbox = $HitboxPivot/SwordHitbox
+onready var hurtbox = $HurtBox
 
 
 func _ready():
+	stats.connect("no_health", self, "queue_free")
 	state = MOVE
 	animationTree.active = true
 	animationTree.set("parameters/Idle/blend_position", Vector2.DOWN)
@@ -82,6 +85,8 @@ func on_roll_animation_finished():
 	# reduce so we don't slide as much at end of roll
 	velocity = velocity * 0.8
 	state = MOVE
-	
-	
-	
+
+func _on_HurtBox_area_entered(area):
+	stats.health -= 1
+	hurtbox.start_invincibility(0.5)
+	hurtbox.create_hit_effect()
