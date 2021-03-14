@@ -5,6 +5,7 @@ const hitEffect = preload("res://Effects/HitEffect.tscn")
 var invincible = false setget set_invincible
 
 onready var timer = $Timer
+onready var collisionShape = $CollisionShape2D
 
 signal invincibility_started
 signal invincibility_ended
@@ -32,12 +33,10 @@ func _on_Timer_timeout():
 	self.invincible = false
 
 
-# this is a bit of weirdness, since we are only triggering damage on the enter of the
-#   hurtox, if the enemy hovers over us, they trigger no furhter damage.  We toggle 
-#   monitorable sot the enemy re-enters hurtbox when monitorable is turned back on.
-func _on_HurtBox_invincibility_ended():
-	set_deferred("monitorable",  false)
-
-
+# have a moment of invencibility after being hit
 func _on_HurtBox_invincibility_started():
-	monitorable = true
+	collisionShape.set_deferred("disabled",  true)
+	
+func _on_HurtBox_invincibility_ended():
+	collisionShape.disabled = false
+	
